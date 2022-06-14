@@ -1,6 +1,7 @@
 package wsfed
 
 import (
+	"crypto/tls"
 	"crypto/x509"
 	"errors"
 	"io/ioutil"
@@ -45,7 +46,14 @@ func (c *Config) updateConfigFromMetadata() {
 }
 
 func (c *Config) getMetadata() string {
-	resp, err := http.Get(c.MetadataURL)
+	var client = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+	resp, err := client.Get(c.MetadataURL)
 	if err != nil {
 		panic(err)
 	}
